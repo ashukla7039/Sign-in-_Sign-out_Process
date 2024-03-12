@@ -3,7 +3,7 @@
     "name": "loginTimeCard",
     "slug": "loginTimeCard",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
@@ -22,9 +20,26 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
+      // "permissions": ["ACCESS_BACKGROUND_LOCATION"]
     },
+    "scheme": "loginscreen",
     "web": {
       "favicon": "./assets/favicon.png"
     }
+    // "background": {
+    //   "tasks": [
+    //     {
+    //       "name": "myBackgroundTask",
+    //       "matchOptions": "exact",
+    //       "task": {
+    //         "module": "./App.js",
+    //         "options": {
+    //           "startOnBoot": true,
+    //           "delay": 5000
+    //         }
+    //       }
+    //     }
+    //   ]
+    // }
   }
 }
