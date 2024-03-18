@@ -7,6 +7,9 @@ import Home from "./components/Home";
 import Mydrawer from "./components/Mydrawer";
 import Hello from "./components/Hello";
 import Signup from "./components/Signup";
+import SignupForm from "./components/Signup";
+import HomeScreen from "./components/Welcome";
+import { Text, TouchableOpacity } from "react-native";
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -16,6 +19,13 @@ export default function App() {
         <Stack.Screen
           name="Login"
           component={LoginScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="SignupForm"
+          component={SignupForm}
           options={{
             headerShown: false,
           }}
@@ -47,7 +57,17 @@ export default function App() {
         />
 
         <Stack.Screen
+          name="Welcome"
+          initialParams={{ name: "" }}
+          options={{
+            drawerLabel: "Hello",
+            title: "Hello",
+          }}
+          component={HomeScreen}
+        />
+        <Stack.Screen
           name="Hello"
+          initialParams={{ name: "" }}
           options={{
             drawerLabel: "Hello",
             title: "Hello",

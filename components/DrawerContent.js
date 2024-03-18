@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Switch,
 } from "react-native";
+import SignOutModal from "./SignOutModal";
 
 import {
   DrawerContentScrollView,
@@ -14,9 +15,16 @@ import {
   DrawerItemList,
 } from "@react-navigation/drawer";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-const DrawerContent = (props) => {
+const DrawerContent = ({ props }) => {
   const image = require("../assets/nira.png");
+  const [isSignOutModalVisible, setIsSignOutModalVisible] = useState(false);
+  const handleConfirmLogout = () => {
+    props.navigation.navigate("Login");
+  };
 
+  const handleCancelLogout = () => {
+    setIsSignOutModalVisible(false);
+  };
   return (
     <View style={{ flex: 1 }}>
       <DrawerContentScrollView
@@ -57,7 +65,7 @@ const DrawerContent = (props) => {
               color: "#111",
             }}
           >
-            Ankit shukla
+            {props}
           </Text>
           <Text
             style={{
@@ -74,7 +82,7 @@ const DrawerContent = (props) => {
             {/* <DrawerItem /> */}
           </View>
 
-          <DrawerItem
+          {/* <DrawerItem
             style={{ bottom: 0 }}
             label="Sign Out"
             onPress={() => props.navigation.navigate("Login")}
@@ -82,10 +90,10 @@ const DrawerContent = (props) => {
               <MaterialCommunityIcons name="logout" size={30} color="white" />
             )}
             labelStyle={{ color: "white", fontSize: 20 }}
-          />
+          /> */}
         </SafeAreaView>
       </DrawerContentScrollView>
-      <View
+      {/* <View
         style={{
           flexDirection: "row",
           alignItems: "center",
@@ -105,12 +113,17 @@ const DrawerContent = (props) => {
         >
           Dark Theme
         </Text>
-      </View>
+      </View> */}
       <DrawerItem
         style={{ bottom: 0 }}
-        label="Sign Out"
-        onPress={() => props.navigation.navigate("Login")}
+        label="Log Out"
+        onPress={() => setIsSignOutModalVisible(true)}
         icon={() => <MaterialCommunityIcons name="logout" size={24} />}
+      />
+      <SignOutModal
+        visible={isSignOutModalVisible}
+        onConfirm={handleConfirmLogout}
+        onCancel={handleCancelLogout}
       />
     </View>
   );

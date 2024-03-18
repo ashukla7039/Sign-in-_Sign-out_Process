@@ -12,7 +12,7 @@ const Sidebar = () => {
         <Text style={styles.profileName}>Ankit Shukla</Text>
         <Text style={styles.profileEvents}>Events </Text>
       </View>
-      Sidebar
+      
       <TouchableOpacity
         style={styles.menuItem}
         onPress={() => handleNavigation("Home")}

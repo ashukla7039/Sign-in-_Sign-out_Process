@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     top: 0,
   },
   content: {
-    padding: 20,
+    padding: 10,
     backgroundColor: "#D6E1F0",
   },
   textContent: {

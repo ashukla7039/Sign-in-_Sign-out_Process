@@ -9,9 +9,11 @@ import {
   Image,
   SafeAreaView,
 } from "react-native";
+import { Snackbar } from "react-native-paper";
 
 const LoginScreen = ({ onLogin }) => {
   const image = require("../assets/ait.png");
+  const [visible, setVisible] = React.useState(false);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -39,13 +41,16 @@ const LoginScreen = ({ onLogin }) => {
       setUsername("");
       setPassword("");
       setErrors("");
+      setVisible(true);
       //navigate.navigate("Home", { name: username });
       //navigate.navigate("Welcome", { name: username });
       navigate.navigate("Mydrawer", { name: username });
+
+      // Snackbar.show("Hey Hi, Welcome! You are logged in.");
     }
   };
   const handleSignUp = () => {
-    navigate.navigate("Signup");
+    navigate.navigate("SignupForm");
   };
   return (
     <View
@@ -58,7 +63,7 @@ const LoginScreen = ({ onLogin }) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.form}>
           <Image source={image} style={styles.image} resizeMode="contain" />
-          <Text style={styles.message}>Hello Ait'ians 👋</Text>
+          <Text style={styles.message}>Hello AIT'ians 👋</Text>
           {errors.username ? (
             <Text style={styles.error}>{errors.username}</Text>
           ) : null}
@@ -104,6 +109,10 @@ const LoginScreen = ({ onLogin }) => {
                 LOGIN
               </Text>
             </TouchableOpacity>
+
+            {/* {isLoggedIn && (
+              <Text style={styles.successMessage}>You are logged in!</Text>
+            )} */}
           </View>
 
           <View
@@ -119,6 +128,14 @@ const LoginScreen = ({ onLogin }) => {
               <Text style={{ color: "#064EF8" }}> Sign-up</Text>
             </TouchableOpacity>
           </View>
+          <Snackbar
+            visible={visible}
+            onDismiss={() => setVisible(false)}
+            duration={Snackbar.DURATION_LONG}
+            style={{ backgroundColor: "green" }}
+          >
+            Login Successful!
+          </Snackbar>
         </View>
       </SafeAreaView>
     </View>
@@ -204,11 +221,16 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   message: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    color: "#064EF8",
+    color: "#000",
     paddingBottom: 10,
+  },
+  successMessage: {
+    marginTop: 10,
+    color: "green",
+    fontSize: 18,
   },
 });
 export default LoginScreen;

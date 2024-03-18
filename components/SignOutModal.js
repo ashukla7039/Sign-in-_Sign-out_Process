@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, View, Text, TouchableOpacity } from "react-native";
 
-const SignOutModal = ({ visible, onConfirm, onCancel }) => {
+const SignOutModal = ({ visible, onConfirm, onCancel, message }) => {
   return (
     <Modal visible={visible} transparent>
       <View
@@ -20,8 +20,23 @@ const SignOutModal = ({ visible, onConfirm, onCancel }) => {
             alignItems: "center",
           }}
         >
+          <Text
+            style={{
+              textAlign: "center",
+              fontSize: 22,
+              fontWeight: "bold",
+              marginBottom: 10,
+              color: "#f4d345",
+            }}
+          >
+            Logout !
+          </Text>
           <Text style={{ fontSize: 18, marginBottom: 20 }}>
-            Are you sure you want to log out?
+            <Text style={{ color: "red", fontWeight: "bold" }}>
+              {" "}
+              {message}{" "}
+            </Text>
+            ,are you sure you want to log out?
           </Text>
           <View style={{ flexDirection: "row" }}>
             <TouchableOpacity style={{ marginRight: 20 }} onPress={onConfirm}>
