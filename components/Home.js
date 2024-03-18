@@ -82,47 +82,23 @@ export default function HomePage({ route }) {
     };
   }, []);
   const updateMarkedDates = async (timestamp, color, text) => {
-    const date = new Date(timestamp);
-    console.log(date, "dategfhjkhgfghj");
-    const isoDate = date.toISOString().split("T")[0];
-    const swipes = await AsyncStorage.getItem("swipes");
-    const swipesArr = JSON.parse(swipes);
-    const now = new Date().getTime();
-    const markedDates = await AsyncStorage.getItem("markedDates");
-    let updateMarkedDates = {};
-    if (swipesArr != null && swipesArr.length > 0 && swipesArr[0].signIn) {
-      if (now - swipesArr[0].signIn >= 28800000) {
-        if (Object.keys(markedDates).length > 0) {
-          updateMarkedDates = {
-            ...markedDates,
-            [isoDate]: {
-              selected: true,
-              selectedColor: "green",
-            },
-          };
-        }
-      } else {
-        if (Object.keys(markedDates).length > 0) {
-          updateMarkedDates = {
-            ...markedDates,
-            [isoDate]: {
-              selected: true,
-              selectedColor: "red",
-            },
-          };
-        }
-      }
-    }
-    // setMarkedDates((prevMarkedDates) => ({
-    //   ...prevMarkedDates,
-    //   [isoDate]: {
-    //     selected: true,
-    //     selectedColor: color,
-    //     text: text,
-    //   },
-    // }));
-    setMarkedDates(updateMarkedDates);
-    await AsyncStorage.removeItem("markedDates");
+    // const date = new Date(timestamp);
+
+    const day = timestamp.toLocaleString("default", { day: "2-digit" });
+    const month = timestamp.toLocaleString("default", { month: "2-digit" });
+    const year = timestamp.toLocaleString("default", { year: "numeric" });
+
+    const isoDate = year + "-" + month + "-" + day;
+
+    setMarkedDates((prevMarkedDates) => ({
+      ...prevMarkedDates,
+      [isoDate]: {
+        selected: true,
+        selectedColor: color,
+        text: text,
+      },
+    }));
+    console.log(markedDates, "markedDates");
     await AsyncStorage.setItem("markedDates", JSON.stringify(markedDates));
   };
   useEffect(() => {
@@ -133,7 +109,7 @@ export default function HomePage({ route }) {
         const markedDates = await AsyncStorage.getItem("markedDates");
         const swipesArr = JSON.parse(swipes);
         console.log(swipesArr[0].date, "swipesArr");
-
+        // if (swipes[0].date === date) {
         if (swipes) {
           setAllSwipes(JSON.parse(swipes));
         }
@@ -144,6 +120,7 @@ export default function HomePage({ route }) {
         if (markedDates) {
           setMarkedDates(JSON.parse(markedDates));
         }
+        //}
       } catch (error) {
         console.error("Error fetching swipes", error);
       }
@@ -171,14 +148,20 @@ export default function HomePage({ route }) {
         await AsyncStorage.removeItem("swipes");
         await AsyncStorage.setItem("swipes", JSON.stringify(swipesArray));
         setAllSwipes(swipesArray);
-        console.log(swipesArray, "swipesArray In login");
+        if (
+          allSwipes[allSwipes.length - 2]?.signOut - allSwipes[0].signIn >=
+          28800000
+        ) {
+          updateMarkedDates(new Date(), "green", "P");
+        } else {
+          updateMarkedDates(new Date(), "red", "A");
+        }
+        //  updateMarkedDates(new Date(), "green", "P");
       }
       await AsyncStorage.setItem("loggedInStatus", "true");
     } catch (error) {
       console.error("Error saving login time:", error);
     }
-
-    updateMarkedDates(now, "green", "P");
   };
 
   const handleLogout = async () => {
@@ -203,13 +186,21 @@ export default function HomePage({ route }) {
         await AsyncStorage.setItem("swipes", JSON.stringify(swipesArray));
         console.log(swipesArray, "swipesArray");
         setAllSwipes(swipesArray);
+        if (
+          allSwipes[allSwipes.length - 1]?.signOut - allSwipes[0].signIn >=
+          28800000
+        ) {
+          updateMarkedDates(new Date(), "green", "P");
+        } else {
+          updateMarkedDates(new Date(), "red", "A");
+        }
+        // updateMarkedDates(new Date(), totalDuration >= 8 ? "green" : "red", "A");
       }
       await AsyncStorage.setItem("loggedInStatus", "false");
     } catch (error) {
       console.error("Error saving logout time to AsyncStorage:", error);
     }
 
-    updateMarkedDates(now, totalDuration >= 8 ? "green" : "red", "A");
     calculateDuration();
   };
 
