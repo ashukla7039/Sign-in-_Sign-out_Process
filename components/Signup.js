@@ -8,6 +8,7 @@ import {
   Button,
   SafeAreaView,
   TouchableOpacity,
+  ImageBackground,
   Image,
 } from "react-native";
 import { StyleSheet } from "react-native";
@@ -15,7 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const SignupForm = () => {
   const image = require("../assets/ait.png");
-
+  const registerBg = require("../assets/sc.jpg");
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Please enter your name"),
     email: Yup.string()
@@ -33,114 +34,127 @@ const SignupForm = () => {
   };
 
   return (
-    <View style={{ flex: 1, display: "flex", justifyContent: "center" }}>
-      <Formik
-        initialValues={{ name: "", email: "", password: "" }}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleChange, handleBlur, values, errors, touched }) => (
-          <SafeAreaView style={styles.container}>
-            <View style={styles.form}>
-              {/* <Text style={styles.heading}>Register Here</Text> */}
-              <Image source={image} style={styles.image} resizeMode="contain" />
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Name</Text>
-                <TextInput
-                  placeholder="Name"
-                  name="name"
-                  placeholderTextColor={"#000"}
-                  onChangeText={handleChange("name")}
-                  onBlur={handleBlur("name")}
-                  value={values.name}
-                  style={[
-                    styles.input,
-                    styles.passwordInput,
-                    errors.name && touched.name && styles.errorInput,
-                  ]}
+    <ImageBackground
+      source={registerBg}
+      style={{
+        flex: 1,
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <View style={{ justifyContent: "center", padding: 20 }}>
+        <Formik
+          initialValues={{ name: "", email: "", password: "" }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ handleChange, handleBlur, values, errors, touched }) => (
+            <SafeAreaView style={styles.container}>
+              <View style={styles.form}>
+                {/* <Text style={styles.heading}>Register Here</Text> */}
+                <Image
+                  source={image}
+                  style={styles.image}
+                  resizeMode="contain"
                 />
-                {errors.name && touched.name && (
-                  <Text style={styles.errorText}>{errors.name}</Text>
-                )}
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email</Text>
-                <TextInput
-                  placeholder="Email"
-                  name="email"
-                  placeholderTextColor={"#000"}
-                  onChangeText={handleChange("email")}
-                  onBlur={handleBlur("email")}
-                  value={values.email}
-                  style={[
-                    styles.input,
-                    styles.passwordInput,
-                    errors.email && touched.email && styles.errorInput,
-                  ]}
-                />
-                {errors.email && touched.email && (
-                  <Text style={styles.errorText}>{errors.email}</Text>
-                )}
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Password</Text>
-                <TextInput
-                  placeholder="Password"
-                  name="password"
-                  onChangeText={handleChange("password")}
-                  placeholderTextColor={"#000"}
-                  onBlur={handleBlur("password")}
-                  value={values.password}
-                  secureTextEntry={true}
-                  style={[
-                    styles.input,
-                    styles.passwordInput,
-                    errors.password && touched.password && styles.errorInput,
-                  ]}
-                />
-                {errors.password && touched.password && (
-                  <Text style={styles.errorText}>{errors.password}</Text>
-                )}
-              </View>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <TouchableOpacity style={styles.loginBtn}>
-                  <Text
-                    style={{ color: "#fff", fontSize: 22, fontWeight: "500" }}
-                    onPress={handleSubmit}
-                  >
-                    Register
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              {/* <Button
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Name</Text>
+                  <TextInput
+                    placeholder="Name"
+                    name="name"
+                    placeholderTextColor={"#000"}
+                    onChangeText={handleChange("name")}
+                    onBlur={handleBlur("name")}
+                    value={values.name}
+                    style={[
+                      styles.input,
+                      styles.passwordInput,
+                      errors.name && touched.name && styles.errorInput,
+                    ]}
+                  />
+                  {errors.name && touched.name && (
+                    <Text style={styles.errorText}>{errors.name}</Text>
+                  )}
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Email</Text>
+                  <TextInput
+                    placeholder="Email"
+                    name="email"
+                    placeholderTextColor={"#000"}
+                    onChangeText={handleChange("email")}
+                    onBlur={handleBlur("email")}
+                    value={values.email}
+                    style={[
+                      styles.input,
+                      styles.passwordInput,
+                      errors.email && touched.email && styles.errorInput,
+                    ]}
+                  />
+                  {errors.email && touched.email && (
+                    <Text style={styles.errorText}>{errors.email}</Text>
+                  )}
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Password</Text>
+                  <TextInput
+                    placeholder="Password"
+                    name="password"
+                    onChangeText={handleChange("password")}
+                    placeholderTextColor={"#000"}
+                    onBlur={handleBlur("password")}
+                    value={values.password}
+                    secureTextEntry={true}
+                    style={[
+                      styles.input,
+                      styles.passwordInput,
+                      errors.password && touched.password && styles.errorInput,
+                    ]}
+                  />
+                  {errors.password && touched.password && (
+                    <Text style={styles.errorText}>{errors.password}</Text>
+                  )}
+                </View>
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <TouchableOpacity style={styles.loginBtn}>
+                    <Text
+                      style={{ color: "#fff", fontSize: 22, fontWeight: "500" }}
+                      onPress={handleSubmit}
+                    >
+                      Register
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                {/* <Button
                 title="Register"
                 onPress={handleSubmit}
                 style={styles.button}
               /> */}
-            </View>
-          </SafeAreaView>
-        )}
-      </Formik>
-    </View>
+              </View>
+            </SafeAreaView>
+          )}
+        </Formik>
+      </View>
+    </ImageBackground>
   );
 };
 
 export default SignupForm;
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: 20,
-    padding: 20,
-    borderRadius: 5,
-    backgroundColor: "#f0f0f0",
-  },
+  // container: {
+  //   marginHorizontal: 20,
+  //   padding: 20,
+  //   borderRadius: 5,
+  //   backgroundColor: "#f0f0f0",
+  // },
   heading: {
     fontSize: 24,
     fontWeight: "bold",
@@ -197,7 +211,7 @@ const styles = StyleSheet.create({
   loginBtn: {
     width: "80%",
     // backgroundColor: "#3f51b5",
-    backgroundColor: "#469486",
+    backgroundColor: "#1378f1",
     borderRadius: 25,
     height: 50,
     alignItems: "center",

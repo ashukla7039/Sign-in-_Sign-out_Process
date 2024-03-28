@@ -166,9 +166,9 @@ export default function HomePage({ route }) {
         const durationMilliseconds = signOutTime - signInTime;
 
         if (durationMilliseconds >= 28800000) {
-          updateMarkedDates(new Date(), "green", "P");
+          updateMarkedDates(new Date(), "#66ff66", "P");
         } else if (durationMilliseconds <= 10800000) {
-          updateMarkedDates(new Date(), "yellow", "H");
+          updateMarkedDates(new Date(), "#ff8533", "H");
         } else {
           updateMarkedDates(new Date(), "red", "A");
         }
@@ -225,9 +225,9 @@ export default function HomePage({ route }) {
         const durationMilliseconds = signOutTime - signInTime;
 
         if (durationMilliseconds >= 28800000) {
-          updateMarkedDates(new Date(), "green", "P");
+          updateMarkedDates(new Date(), "#66ff66", "P");
         } else if (durationMilliseconds <= 10800000) {
-          updateMarkedDates(new Date(), "yellow", "H");
+          updateMarkedDates(new Date(), "#ff8533", "H");
         } else {
           updateMarkedDates(new Date(), "red", "A");
         }
@@ -340,6 +340,11 @@ export default function HomePage({ route }) {
                 style={styles.container}
                 colors={["#e7d2dd", "#fbfbfb"]}
               >
+                {/* <Image
+                  source={buildingImg}
+                  style={styles.buildImage}
+                  resizeMode="contain"
+                /> */}
                 <View style={styles.contentContainer}>
                   <View
                     style={{
@@ -348,11 +353,18 @@ export default function HomePage({ route }) {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      padding: 8,
                     }}
                   >
-                    <View style={styles.circle}>
+                    <LinearGradient
+                      style={styles.circle}
+                      colors={["#59a94e", "#fff"]}
+                      //colors={["#ef7e2d", "#fff", "#59a94e"]}
+                    >
+                      {/* <View> */}
                       <Text style={styles.time}>{time}</Text>
-                    </View>
+                      {/* </View> */}
+                    </LinearGradient>
                   </View>
 
                   <View style={styles.headerContainer}>
@@ -419,7 +431,7 @@ export default function HomePage({ route }) {
                       width: 80,
                     }}
                   >
-                    {loggedIn ? "Log-Out" : "Log-In"}
+                    {loggedIn ? "Sign-Out" : "Sign-In"}
                   </Text>
                 </Pressable>
               </View>
@@ -441,14 +453,15 @@ export default function HomePage({ route }) {
                         style={{
                           display: "flex",
                           flexDirection: "row",
-                          justifyContent: "space-between",
+                          justifyContent: "space-evenly",
+                          alignItems: "center",
                         }}
                       >
-                        <Pressable onPress={() => setModalVisible(false)}>
-                          <Text style={styles.closeIcon}>No</Text>
-                        </Pressable>
                         <Pressable onPress={handleLogout}>
                           <Text style={styles.closeIcon}>Yes</Text>
+                        </Pressable>
+                        <Pressable onPress={() => setModalVisible(false)}>
+                          <Text style={styles.closeIcon}>No</Text>
                         </Pressable>
                       </View>
                     </View>
@@ -469,15 +482,23 @@ export default function HomePage({ route }) {
                       <Text style={styles.messageText}>
                         Hey welcome! You are logged in.
                       </Text>
-                      <Pressable onPress={closeModal}>
+                      <Pressable
+                        onPress={closeModal}
+                        style={{
+                          direction: "row",
+                          justifyContent: "space-evenly",
+                          alignItems: "center",
+                        }}
+                      >
                         <Text
                           style={{
                             borderRadius: 10,
-                            padding: 15,
+                            padding: 8,
+                            fontSize: 16,
                             width: 50,
-                            justifyContent: "center",
-                            alignItems: "center",
-                            backgroundColor: "#469486",
+                            color: "#fff",
+                            textAlign: "center",
+                            backgroundColor: "#1378f1",
                           }}
                         >
                           Ok
@@ -585,18 +606,18 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   circle: {
-    width: 80,
-    height: 80,
+    width: 90,
+    height: 90,
     position: "fixed",
     borderRadius: 75,
-    backgroundColor: "#fce5c0",
+    // backgroundColor: "#1378f1",
     justifyContent: "center",
     alignItems: "center",
   },
   time: {
     fontSize: 15,
     fontWeight: "bold",
-    color: "black",
+    color: "#000",
   },
   headerContainer: {
     alignItems: "flex-end",
@@ -626,6 +647,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     flexDirection: "row",
     paddingBottom: 10,
+    marginLeft: 10,
   },
   image: {
     height: 50,
@@ -633,7 +655,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   buildImage: {
-    height: 120,
+    height: 150,
     width: "100%",
     borderRadius: 50,
   },
@@ -649,7 +671,7 @@ const styles = StyleSheet.create({
   },
   badge: {
     padding: 10,
-    marginTop: 2,
+    marginTop: 5,
     backgroundColor: "#59a94e",
     justifyContent: "center",
     alignItems: "center",
@@ -683,7 +705,7 @@ const styles = StyleSheet.create({
   },
   swipeHeaderText: {
     fontSize: 22,
-    backgroundColor: "#469486",
+    //backgroundColor: "#1378f1",
     display: "flex",
     margin: "10",
     justifyContent: "center",
@@ -700,7 +722,7 @@ const styles = StyleSheet.create({
     alignContent: "center",
     // backgroundColor: "#E4E4E4",
     borderBottomColor: "#000",
-    backgroundColor: "#469486",
+    backgroundColor: "#1378f1",
 
     borderRadius: 10,
     padding: 5,
@@ -720,10 +742,12 @@ const styles = StyleSheet.create({
   },
   closeIcon: {
     borderRadius: 10,
-    padding: 15,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#469486",
+    padding: 8,
+    fontSize: 16,
+    textAlign: "center",
+    backgroundColor: "#1378f1",
+    color: "#fff",
+    width: 60,
   },
 
   avatar: {
@@ -733,7 +757,7 @@ const styles = StyleSheet.create({
     backgroundColor: " ",
     borderRadius: 25,
     borderWidth: 2,
-    borderColor: "yellow",
+    borderColor: "#ff8533",
     shadowColor: "#999",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,

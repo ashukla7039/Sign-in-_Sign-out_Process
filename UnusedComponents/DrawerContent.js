@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Switch,
 } from "react-native";
-import SignOutModal from "./SignOutModal";
+import SignOutModal from "../components/SignOutModal";
 
 import {
   DrawerContentScrollView,

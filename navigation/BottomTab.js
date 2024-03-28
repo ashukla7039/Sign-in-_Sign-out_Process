@@ -2,11 +2,9 @@ import { View, Text, Platform, Image, SafeAreaView } from "react-native";
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
-import Hello from "../components/Hello";
-import SignUp from "../components/Signup";
 import Home from "../components/Home";
-import { Ionicons } from "@expo/vector-icons";
-import Sidebar from "../components/Sidebar";
+import Actions from "../components/Actions";
+import Explore from "../components/Explore";
 const Tab = createBottomTabNavigator();
 
 const BottomTab = ({ route }) => {
@@ -28,13 +26,13 @@ const BottomTab = ({ route }) => {
   return (
     <Tab.Navigator
       screenOptions={{
-        //headerShown: false,
         tabBarStyle: {
           position: "absolute",
           bottom: 0,
           right: 0,
           left: 0,
           elevation: 0,
+
           height: Platform.OS === "ios" ? 90 : 60,
           backgroundColor: "#fff",
         },
@@ -43,8 +41,6 @@ const BottomTab = ({ route }) => {
           fontWeight: "bold",
         },
         tabBarPosition: "bottom",
-
-        animationEnabled: true,
       }}
     >
       <Tab.Screen
@@ -61,6 +57,7 @@ const BottomTab = ({ route }) => {
                   style={{
                     height: 50,
                     borderRadius: 50,
+                    marginBottom: 15,
                   }}
                 />
               </SafeAreaView>
@@ -74,6 +71,7 @@ const BottomTab = ({ route }) => {
                     height: 50,
                     width: 50,
                     marginRight: 15,
+                    marginBottom: 15,
                     borderRadius: 25,
                     borderWidth: 1,
                     borderColor: "yellow",
@@ -87,9 +85,9 @@ const BottomTab = ({ route }) => {
                 >
                   <Text
                     style={{
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: "bold",
-                      color: "#000",
+                      color: "#1378f1",
                     }}
                     onPress={() => navigate.openDrawer()}
                   >
@@ -128,8 +126,8 @@ const BottomTab = ({ route }) => {
         }}
       />
       <Tab.Screen
-        name="Hello"
-        component={Hello}
+        name="Actions"
+        component={Actions}
         initialParams={{ name: route.params.name }}
         options={{
           headerShown: true,
@@ -158,19 +156,14 @@ const BottomTab = ({ route }) => {
                   tintColor: focused ? "#1378F1" : "#000",
                 }}
               />
-              // <Ionicons
-              //   name={focused ? "bookmarks-sharp" : "bookmarks-outline"}
-              //   size={24}
-              //   color={focused ? "#13678A" : "#000"}
-              // />
             );
           },
         }}
       />
 
       <Tab.Screen
-        name="Sidebar"
-        component={Sidebar}
+        name="Explore"
+        component={Explore}
         options={{
           tabBarLabel: ({ focused }) => {
             return (
@@ -196,11 +189,6 @@ const BottomTab = ({ route }) => {
                   tintColor: focused ? "#1378F1" : "#000",
                 }}
               />
-              // <Ionicons
-              //   name={focused ? "color-filter" : "color-filter-outline"}
-              //   size={24}
-              //   color={focused ? "#1378F1" : "#000"}
-              // />
             );
           },
         }}

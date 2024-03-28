@@ -20,7 +20,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import Chevron from "./Chevron";
+import Chevron from "../components/Chevron";
 
 const Hello = ({ route }) => {
   const image = require("../assets/ait.png");

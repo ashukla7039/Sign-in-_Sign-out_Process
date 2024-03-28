@@ -4,11 +4,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import LoginScreen from "./components/Login";
 import Home from "./components/Home";
-import Mydrawer from "./components/Mydrawer";
-import Hello from "./components/Hello";
+import Mydrawer from "./components/DrawerScreen";
+import Hello from "./UnusedComponents/Hello";
 import Signup from "./components/Signup";
 import SignupForm from "./components/Signup";
-import HomeScreen from "./components/Welcome";
+import HomeScreen from "./UnusedComponents/Welcome";
 import { Text, TouchableOpacity } from "react-native";
 const Stack = createStackNavigator();
 
@@ -23,20 +23,6 @@ export default function App() {
             headerShown: false,
           }}
         />
-        <Stack.Screen
-          name="SignupForm"
-          component={SignupForm}
-          options={{
-            headerShown: false,
-          }}
-        />
-        {/* <Stack.Screen
-          name="Signup"
-          component={Signup}
-          options={{
-            headerShown: false,
-          }}
-        /> */}
 
         <Stack.Screen
           name="Mydrawer"
@@ -45,34 +31,6 @@ export default function App() {
           options={{
             headerShown: false,
           }}
-        />
-        <Stack.Screen
-          name="Home"
-          initialParams={{ name: "" }}
-          options={{
-            drawerLabel: "Home",
-            title: "Home",
-          }}
-          component={Home}
-        />
-
-        <Stack.Screen
-          name="Welcome"
-          initialParams={{ name: "" }}
-          options={{
-            drawerLabel: "Hello",
-            title: "Hello",
-          }}
-          component={HomeScreen}
-        />
-        <Stack.Screen
-          name="Hello"
-          initialParams={{ name: "" }}
-          options={{
-            drawerLabel: "Hello",
-            title: "Hello",
-          }}
-          component={Hello}
         />
       </Stack.Navigator>
     </NavigationContainer>

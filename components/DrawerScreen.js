@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { ImageBackground, Platform, SafeAreaView, View } from "react-native";
 import Home from "./Home";
-import Hello from "./Hello";
-import Sidebar from "./Sidebar";
-import DrawerContent from "./DrawerContent";
+import Hello from "../UnusedComponents/Hello";
+import Sidebar from "../UnusedComponents/Sidebar";
+import DrawerContent from "../UnusedComponents/DrawerContent";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
@@ -16,13 +16,14 @@ import {
   DrawerItem,
   DrawerItemList,
 } from "@react-navigation/drawer";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { DrawerActions } from "@react-navigation/native";
 import BottomTab from "../navigation/BottomTab";
 import { Ionicons } from "@expo/vector-icons";
 const Drawer = createDrawerNavigator();
 
-const Mydrawer = ({ route }) => {
+const DrawerScreen = ({ route }) => {
   const navigate = useNavigation();
   const image = require("../assets/nira.png");
   const userAvtar = require("../assets/userAvtar.png");
@@ -30,7 +31,12 @@ const Mydrawer = ({ route }) => {
   const headerImage = require("../assets/ait.png");
 
   const [isSignOutModalVisible, setIsSignOutModalVisible] = useState(false);
-  const handleConfirmLogout = () => {
+  const handleConfirmLogout = async () => {
+    //await AsyncStorage.setItem("isLoggedIn", "false");
+
+    // await AsyncStorage.removeItem("username");
+
+    // await AsyncStorage.removeItem("password");
     navigate.navigate("Login");
   };
 
@@ -39,11 +45,11 @@ const Mydrawer = ({ route }) => {
   };
   const { name } = route.params;
 
-  const initials = name
-    .split(" ")
-    .map((word) => word.charAt(0))
-    .join("")
-    .toUpperCase();
+  // const initials = name
+  //   .split(" ")
+  //   .map((word) => word.charAt(0))
+  //   .join("")
+  //   .toUpperCase();
   return (
     <>
       <Drawer.Navigator
@@ -160,21 +166,29 @@ const Mydrawer = ({ route }) => {
               </ImageBackground>
               <SafeAreaView>
                 <View
-                  style={{ flex: 1, backgroundColor: "#fff", paddingTop: 10 }}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#fff",
+                    paddingTop: 10,
+                  }}
                 >
                   <DrawerItemList {...props} />
                   {/* <DrawerItem /> */}
                 </View>
               </SafeAreaView>
             </DrawerContentScrollView>
-
+            <View style={{ borderBottomWidth: 0.5, opacity: 0.5 }} />
             <DrawerItem
               style={{
                 bottom: 0,
                 shadowRadius: 3,
                 shadowColor: "#000",
                 shadowOpacity: 0.5,
-                shadowOffset: { width: 0, height: 10 },
+                shadowOffset: { width: 1, height: 10 },
+              }}
+              labelStyle={{
+                fontSize: 18,
+                fontWeight: "bold",
               }}
               label="Log Out"
               onPress={() => setIsSignOutModalVisible(true)}
@@ -188,6 +202,7 @@ const Mydrawer = ({ route }) => {
               activeTintColor="#1378f1"
               inactiveTintColor="#000"
             />
+
             <SignOutModal
               visible={isSignOutModalVisible}
               onConfirm={handleConfirmLogout}
@@ -274,4 +289,4 @@ const Mydrawer = ({ route }) => {
   );
 };
 
-export default Mydrawer;
+export default DrawerScreen;

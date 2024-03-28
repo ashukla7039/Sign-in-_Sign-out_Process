@@ -26,7 +26,13 @@ const Calenders = ({ markedDates }) => {
     height: heightValue.value,
   }));
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, marginBottom: 50 }}>
+    <ScrollView
+      contentContainerStyle={{
+        flexGrow: 1,
+        flexDirection: "column",
+        marginBottom: 60,
+      }}
+    >
       <View style={styles.accordionContainer}>
         <Pressable onPress={toggleAccordion} style={styles.titleContainer}>
           <Text style={styles.textTitle}> Attendance Info</Text>
@@ -36,6 +42,7 @@ const Calenders = ({ markedDates }) => {
         {open && (
           <Animated.View style={[styles.content, animatedStyle]}>
             <Calendar
+              style={{}}
               markedDates={markedDates}
               theme={{
                 backgroundColor: "#ffffff",
@@ -47,7 +54,10 @@ const Calenders = ({ markedDates }) => {
                 textDayStyle: {
                   color: "black",
                   fontWeight: "bold",
+                  justifyContent: "center",
+                  alignItems: "center",
                 },
+
                 textDayHeaderFontSize: 14,
               }}
             />
@@ -61,19 +71,21 @@ const Calenders = ({ markedDates }) => {
               }}
             >
               <View
-                style={[styles.circleStyle, { backgroundColor: "green" }]}
+                style={[styles.circleStyle, { backgroundColor: "#66ff66" }]}
               />
               <Text style={styles.textStyle}>Present</Text>
-              <View style={[styles.circleStyle, { backgroundColor: "red" }]} />
+              <View
+                style={[styles.circleStyle, { backgroundColor: "#ff1a1a" }]}
+              />
               <Text style={styles.textStyle}>Absent</Text>
               <View
-                style={[styles.circleStyle, { backgroundColor: "yellow" }]}
+                style={[styles.circleStyle, { backgroundColor: "#ff8533" }]}
               />
               <Text style={styles.textStyle}>Half Day</Text>
-              {/* <View
+              <View
                 style={[styles.circleStyle, { backgroundColor: "skyblue" }]}
               />
-              <Text>Holiday</Text> */}
+              <Text style={styles.textStyle}>Holiday</Text>
             </View>
           </Animated.View>
         )}
@@ -100,10 +112,11 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   titleContainer: {
-    padding: 10,
+    padding: 8,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    margin: 5,
   },
   content: {
     padding: 10,

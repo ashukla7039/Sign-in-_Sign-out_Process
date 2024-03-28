@@ -23,7 +23,7 @@ const LoginScreen = ({ onLogin }) => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
-  const loginBg = require("../assets/loginBlueBg.jpg");
+  const loginBg = require("../assets/sc.jpg");
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -38,32 +38,16 @@ const LoginScreen = ({ onLogin }) => {
 
     return Object.keys(errors).length === 0;
   };
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // State for login status
 
   // useEffect(() => {
   //   async function checkLogin() {
   //     try {
-  //       const isLoggedIn = await AsyncStorage.getItem("isLoggedIn");
+  //       const storedIsLoggedIn = await AsyncStorage.getItem("isLoggedIn");
   //       const username = await AsyncStorage.getItem("username");
 
-  //       if (isLoggedIn === "true") {
-  //         navigate.navigate("Mydrawer", { name: username });
-  //       } else {
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-
-  //   checkLogin();
-  // }, []);
-
-  // useEffect(() => {
-  //   async function checkLogin() {
-  //     try {
-  //       const isLoggedIn = await SecureStore.getItemAsync('isLoggedIn');
-  //       const username = await SecureStore.getItemAsync('username');
-
-  //       if (isLoggedIn === 'true') {
+  //       if (storedIsLoggedIn === "true") {
+  //         setIsLoggedIn(true);
   //         navigate.navigate("Mydrawer", { name: username });
   //       }
   //     } catch (error) {
@@ -76,27 +60,28 @@ const LoginScreen = ({ onLogin }) => {
 
   const handleSubmit = async () => {
     try {
-      await AsyncStorage.setItem("isLoggedIn", "true");
-      await AsyncStorage.setItem("username", username);
-      await AsyncStorage.setItem("password", password);
-    } catch {
-      console.log("Error saving data");
-    }
-    if (validateForm()) {
-      const nameParts = username.split(" ");
-      const initials =
-        nameParts.length > 1
-          ? `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`
-          : nameParts[0].charAt(0);
-      setUsername("");
-      setPassword("");
-      setErrors("");
-      setVisible(true);
-      //navigate.navigate("Home", { name: username });
-      //navigate.navigate("Welcome", { name: username });
-      navigate.navigate("Mydrawer", { name: username });
+      if (validateForm()) {
+        // await AsyncStorage.setItem("isLoggedIn", "true");
+        // await AsyncStorage.setItem("username", username);
+        // await AsyncStorage.setItem("password", password);
+        const nameParts = username.split(" ");
+        const initials =
+          nameParts.length > 1
+            ? `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`
+            : nameParts[0].charAt(0);
 
-      // Snackbar.show("Hey Hi, Welcome! You are logged in.");
+        setUsername("");
+        setPassword("");
+        setErrors("");
+        setVisible(true);
+        //navigate.navigate("Home", { name: username });
+        //navigate.navigate("Welcome", { name: username });
+        navigate.navigate("Mydrawer", { name: username });
+
+        // Snackbar.show("Hey Hi, Welcome! You are logged in.");
+      }
+    } catch (error) {
+      console.log("Error saving data:", error);
     }
   };
   const handleSignUp = () => {
@@ -222,7 +207,10 @@ const LoginScreen = ({ onLogin }) => {
           >
             <Text>Already have account ? </Text>
             <TouchableOpacity onPress={handleSignUp}>
-              <Text style={{ color: "#469486" }}> Sign-up</Text>
+              <Text style={{ color: "#1378f1", fontWeight: "bold" }}>
+                {" "}
+                Sign-up
+              </Text>
             </TouchableOpacity>
           </View>
           <Snackbar
