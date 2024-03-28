@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -20,26 +22,13 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
-      // "permissions": ["ACCESS_BACKGROUND_LOCATION"]
     },
     "scheme": "loginscreen",
     "web": {
       "favicon": "./assets/favicon.png"
-    }
-    // "background": {
-    //   "tasks": [
-    //     {
-    //       "name": "myBackgroundTask",
-    //       "matchOptions": "exact",
-    //       "task": {
-    //         "module": "./App.js",
-    //         "options": {
-    //           "startOnBoot": true,
-    //           "delay": 5000
-    //         }
-    //       }
-    //     }
-    //   ]
-    // }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

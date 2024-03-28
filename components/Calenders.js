@@ -9,33 +9,13 @@ import Animated, {
 
 import Chevron from "./Chevron";
 import { Calendar } from "react-native-calendars";
-import ABCD from "./ABCD";
 
-const Calenders = ({ title, loginTimes, logoutTimes, markedEvents }) => {
+const Calenders = ({ markedDates }) => {
   const [open, setOpen] = useState(false);
   const heightValue = useSharedValue(0);
   const progress = useDerivedValue(() =>
     open ? withTiming(1) : withTiming(0)
   );
-
-  // const createMarker = (timestamp, type) => {
-  //   const formattedDate = new Date(timestamp).toLocaleDateString("en-US");
-  //   return {
-  //     date: formattedDate,
-  //     dotColor: type === "login" ? "green" : "red",
-  //     markingType: "dot",
-  //     text: type.toUpperCase(),
-  //   };
-  // };
-  const createMarker = (timestamp, type) => {
-    const formattedDate = new Date(timestamp).toLocaleDateString("en-US");
-    return {
-      date: formattedDate,
-      dotColor: type === "login" ? "green" : "red",
-      markingType: "dot",
-      text: type === "login" ? "P" : type.toUpperCase(), // Set text to "P" for login
-    };
-  };
 
   const toggleAccordion = () => {
     setOpen(!open);
@@ -46,31 +26,59 @@ const Calenders = ({ title, loginTimes, logoutTimes, markedEvents }) => {
     height: heightValue.value,
   }));
   return (
-    <View style={styles.accordionContainer}>
-      <Pressable onPress={toggleAccordion} style={styles.titleContainer}>
-        <Text style={styles.textTitle}> {title}</Text>
-        <Chevron progress={progress} />
-      </Pressable>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, marginBottom: 50 }}>
+      <View style={styles.accordionContainer}>
+        <Pressable onPress={toggleAccordion} style={styles.titleContainer}>
+          <Text style={styles.textTitle}> Attendance Info</Text>
+          <Chevron progress={progress} />
+        </Pressable>
 
-      {open && (
-        <Animated.View style={[styles.content, animatedStyle]}>
-          <Calendar
-            markingType="custom"
-            style={{ height: "100%", width: "100%" }}
-            // markedDates={markedEvents.reduce((acc, event) => {
-            //   acc[event.date] = { ...event, markingType };
-            //   return acc;
-            // }, {})}
-            // markedDates={createMarker}
-            marking={() => createMarker()}
-            onDayPress={(day) => {
-              console.log("selected day", day);
-            }}
-          />
-          {/* <ABCD /> */}
-        </Animated.View>
-      )}
-    </View>
+        {open && (
+          <Animated.View style={[styles.content, animatedStyle]}>
+            <Calendar
+              markedDates={markedDates}
+              theme={{
+                backgroundColor: "#ffffff",
+
+                textSectionTitleColor: "#b6c1cd",
+                selectedDayBackgroundColor: "#00adf5",
+                textDayFontSize: 12,
+                textMonthFontSize: 16,
+                textDayStyle: {
+                  color: "black",
+                  fontWeight: "bold",
+                },
+                textDayHeaderFontSize: 14,
+              }}
+            />
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                alignItems: "center",
+                marginTop: 5,
+              }}
+            >
+              <View
+                style={[styles.circleStyle, { backgroundColor: "green" }]}
+              />
+              <Text style={styles.textStyle}>Present</Text>
+              <View style={[styles.circleStyle, { backgroundColor: "red" }]} />
+              <Text style={styles.textStyle}>Absent</Text>
+              <View
+                style={[styles.circleStyle, { backgroundColor: "yellow" }]}
+              />
+              <Text style={styles.textStyle}>Half Day</Text>
+              {/* <View
+                style={[styles.circleStyle, { backgroundColor: "skyblue" }]}
+              />
+              <Text>Holiday</Text> */}
+            </View>
+          </Animated.View>
+        )}
+      </View>
+    </ScrollView>
   );
 };
 
@@ -78,12 +86,12 @@ export default Calenders;
 
 const styles = StyleSheet.create({
   accordionContainer: {
-    backgroundColor: "#E3EDFB",
-    marginHorizontal: 10,
-    marginVertical: 10,
+    backgroundColor: "transparent",
+    marginTop: 10,
+
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#0F56B3",
+    borderWidth: 0.2,
+    borderColor: "#000",
     overflow: "hidden",
   },
   textTitle: {
@@ -99,6 +107,18 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 10,
-    backgroundColor: "#D6E1F0",
+    marginBottom: 10,
+    //backgroundColor: "#D6E1F0",
+  },
+  circleStyle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  textStyle: {
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });

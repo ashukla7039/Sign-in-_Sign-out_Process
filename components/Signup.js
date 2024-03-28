@@ -180,7 +180,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   form: {
-    backgroundColor: "#d1d5db",
+    //backgroundColor: "#d1d5db",
+    backgroundColor: "#EAECEE",
+
     padding: 20,
     borderRadius: 10,
     borderColor: "#282a36",
@@ -194,7 +196,8 @@ const styles = StyleSheet.create({
   },
   loginBtn: {
     width: "80%",
-    backgroundColor: "#3f51b5",
+    // backgroundColor: "#3f51b5",
+    backgroundColor: "#469486",
     borderRadius: 25,
     height: 50,
     alignItems: "center",

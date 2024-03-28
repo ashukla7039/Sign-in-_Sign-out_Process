@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const ABCD = ({ selectedDate, onDateChange }) => {
+const Calendars = ({ selectedDate, onDateChange }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const changeMonth = (num) => {
@@ -126,4 +126,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ABCD;
+export default Calendars;

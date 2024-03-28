@@ -7,22 +7,29 @@ import {
   Image,
   Pressable,
   Modal,
-  TouchableOpacity,
   SafeAreaView,
   ScrollView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Calendar } from "react-native-calendars";
-import Animated, {
-  useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
-import Chevron from "./Chevron";
+
+import Calenders from "./Calenders";
 export default function HomePage({ route }) {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [signInModalVisible, setSignInModalVisible] = useState(false);
+  const [swipeModalVisible, setSwipeModalVisible] = useState(false);
+  const [duration, setDuration] = useState({
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+  const [durationVisible, setDurationVisible] = useState(false);
+  const [time, setTime] = useState(new Date().toLocaleTimeString());
+  const [markedDates, setMarkedDates] = useState({});
+  const [allSwipes, setAllSwipes] = useState([]);
+
   const image = require("../assets/ait.png");
   const buildingImg = require("../assets/b1.png");
 
@@ -34,30 +41,7 @@ export default function HomePage({ route }) {
   };
   const daysOptions = { weekday: "long" };
   const formattedDay = currentDate.toLocaleDateString("en-GB", daysOptions);
-
   const formattedDate = currentDate.toLocaleDateString("en-GB", options);
-
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [signInModalVisible, setSignInModalVisible] = useState(false);
-  const [swipeModalVisible, setSwipeModalVisible] = useState(false);
-  const [duration, setDuration] = useState({
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
-  const [totalDuration, setTotalDuration] = useState(0);
-  const [durationVisible, setDurationVisible] = useState(false);
-  const [time, setTime] = useState(new Date().toLocaleTimeString());
-  const [markedDates, setMarkedDates] = useState({});
-  const [open, setOpen] = useState(false);
-  const [allSwipes, setAllSwipes] = useState([]);
-  const heightValue = useSharedValue(0);
-
-  const progress = useDerivedValue(() =>
-    open ? withTiming(1) : withTiming(0)
-  );
-
   const today = new Date();
   const date = today.toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -81,9 +65,13 @@ export default function HomePage({ route }) {
       clearInterval(timer);
     };
   }, []);
-  const updateMarkedDates = async (timestamp, color, text) => {
-    // const date = new Date(timestamp);
 
+  const day = new Date().toLocaleString("default", { day: "2-digit" });
+  const month = new Date().toLocaleString("default", { month: "2-digit" });
+  const year = new Date().toLocaleString("default", { year: "numeric" });
+
+  const isoDate = year + "-" + month + "-" + day;
+  const updateMarkedDates = async (timestamp, color, text) => {
     const day = timestamp.toLocaleString("default", { day: "2-digit" });
     const month = timestamp.toLocaleString("default", { month: "2-digit" });
     const year = timestamp.toLocaleString("default", { year: "numeric" });
@@ -109,9 +97,10 @@ export default function HomePage({ route }) {
         const markedDates = await AsyncStorage.getItem("markedDates");
         const swipesArr = JSON.parse(swipes);
         console.log(swipesArr[0].date, "swipesArr");
-        // if (swipes[0].date === date) {
-        if (swipes) {
-          setAllSwipes(JSON.parse(swipes));
+        const swipe = await AsyncStorage.getItem("swipes");
+
+        if (swipe) {
+          setAllSwipes(JSON.parse(swipe));
         }
 
         if (LoggedIn === "true") {
@@ -120,7 +109,6 @@ export default function HomePage({ route }) {
         if (markedDates) {
           setMarkedDates(JSON.parse(markedDates));
         }
-        //}
       } catch (error) {
         console.error("Error fetching swipes", error);
       }
@@ -129,41 +117,69 @@ export default function HomePage({ route }) {
   }, []);
 
   const handleLogin = async () => {
-    //setModalVisible(true);
     setSignInModalVisible(false);
     const now = new Date().getTime();
-    console.log(allSwipes[allSwipes.length - 1]?.signIn, "dates");
     setDurationVisible(false);
 
     try {
       setLoggedIn(true);
+      const currentDate = new Date().toDateString();
       const swipes = await AsyncStorage.getItem("swipes");
+
       if (swipes === null) {
-        await AsyncStorage.setItem("swipes", JSON.stringify([]));
+        await AsyncStorage.setItem(
+          "swipes",
+          JSON.stringify([{ signIn: now, date: currentDate }])
+        );
+        await AsyncStorage.setItem(
+          "duration",
+          JSON.stringify({ hours: 0, minutes: 0, seconds: 0 })
+        );
       } else {
         const swipesArray = JSON.parse(swipes);
 
-        swipesArray.push({ signIn: now, date: date });
+        const existingIndex = swipesArray.lastIndexOf(
+          (item) => item.date === currentDate
+        );
 
-        await AsyncStorage.removeItem("swipes");
+        swipesArray.push({ signIn: now, date: currentDate });
+        await AsyncStorage.setItem(
+          "duration",
+          JSON.stringify({ hours: 0, minutes: 0, seconds: 0 })
+        );
+
+        const previousDateIndex = swipesArray.lastIndexOf(
+          (item) => item.date !== currentDate
+        );
+        if (previousDateIndex !== -1) {
+          swipesArray.splice(0, previousDateIndex + 1);
+        }
+
         await AsyncStorage.setItem("swipes", JSON.stringify(swipesArray));
         setAllSwipes(swipesArray);
-        if (
-          allSwipes[allSwipes.length - 2]?.signOut - allSwipes[0].signIn >=
-          28800000
-        ) {
+
+        const signInTime =
+          swipesArray[
+            allSwipes.map((e) => e.date).indexOf(new Date().toDateString())
+          ]?.signIn;
+        const signOutTime = swipesArray[swipesArray.length - 1].signOut;
+        const durationMilliseconds = signOutTime - signInTime;
+
+        if (durationMilliseconds >= 28800000) {
           updateMarkedDates(new Date(), "green", "P");
+        } else if (durationMilliseconds <= 10800000) {
+          updateMarkedDates(new Date(), "yellow", "H");
         } else {
           updateMarkedDates(new Date(), "red", "A");
         }
-        //  updateMarkedDates(new Date(), "green", "P");
       }
+
       await AsyncStorage.setItem("loggedInStatus", "true");
     } catch (error) {
       console.error("Error saving login time:", error);
     }
   };
-
+  console.log(allSwipes, "ghjkl");
   const handleLogout = async () => {
     setModalVisible(false);
     const now = new Date().getTime();
@@ -171,31 +187,52 @@ export default function HomePage({ route }) {
 
     try {
       setLoggedIn(false);
+      const currentDate = new Date().toDateString();
       const swipes = await AsyncStorage.getItem("swipes");
+
       if (swipes === null) {
-        await AsyncStorage.removeItem("swipes");
-
-        await AsyncStorage.setItem("swipes", JSON.stringify([]));
+        await AsyncStorage.setItem(
+          "swipes",
+          JSON.stringify([{ signOut: now, date: currentDate }])
+        );
       } else {
-        const swipesArray = JSON.parse(swipes);
-        swipesArray[swipesArray.length - 1].signOut = now;
-        const signInTime = swipesArray[0].signIn;
-        const signOutTime = swipesArray[swipesArray?.length - 1].signOut;
+        let swipesArray = JSON.parse(swipes);
+        const existingIndex = swipesArray.lastIndexOf(
+          (item) => item.date === currentDate
+        );
 
-        await AsyncStorage.removeItem("swipes");
+        if (existingIndex !== -1) {
+          swipesArray[existingIndex].signOut = now;
+        } else {
+          swipesArray[swipesArray.length - 1].signOut = now;
+        }
+
+        const previousDateIndex = swipesArray.lastIndexOf(
+          (item) => item.date !== currentDate
+        );
+        if (previousDateIndex !== -1) {
+          swipesArray.splice(0, previousDateIndex + 1);
+        }
+
         await AsyncStorage.setItem("swipes", JSON.stringify(swipesArray));
-        console.log(swipesArray, "swipesArray");
         setAllSwipes(swipesArray);
-        if (
-          allSwipes[allSwipes.length - 1]?.signOut - allSwipes[0].signIn >=
-          28800000
-        ) {
+
+        const signInTime =
+          swipesArray[
+            allSwipes.map((e) => e.date).indexOf(new Date().toDateString())
+          ]?.signIn;
+        const signOutTime = swipesArray[swipesArray.length - 1].signOut;
+        const durationMilliseconds = signOutTime - signInTime;
+
+        if (durationMilliseconds >= 28800000) {
           updateMarkedDates(new Date(), "green", "P");
+        } else if (durationMilliseconds <= 10800000) {
+          updateMarkedDates(new Date(), "yellow", "H");
         } else {
           updateMarkedDates(new Date(), "red", "A");
         }
-        // updateMarkedDates(new Date(), totalDuration >= 8 ? "green" : "red", "A");
       }
+
       await AsyncStorage.setItem("loggedInStatus", "false");
     } catch (error) {
       console.error("Error saving logout time to AsyncStorage:", error);
@@ -207,14 +244,18 @@ export default function HomePage({ route }) {
   const calculateDuration = async () => {
     const swipesArray = await AsyncStorage.getItem("swipes");
     const swipesArr = JSON.parse(swipesArray);
-    if (swipesArr.length > 0) {
-      const signInTime = swipesArr[0].signIn;
+    if (swipesArr.length > 0 && swipesArr[swipesArr.length - 1].date) {
+      const signInTime =
+        swipesArr[
+          allSwipes.map((e) => e.date).indexOf(new Date().toDateString())
+        ]?.signIn;
       const signOutTime = swipesArr[swipesArr?.length - 1].signOut;
       console.log(signInTime, "signInTime");
       console.log(signOutTime, "signOutTime");
       const durationMilliseconds = signOutTime - signInTime;
 
       console.log(durationMilliseconds, "durationMilliseconds");
+      console.log(swipesArr[swipesArr.length - 1].date, "swipesArr Date");
       const totalSeconds = Math.floor(durationMilliseconds / 1000);
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -225,17 +266,34 @@ export default function HomePage({ route }) {
       setDuration({ hours: 0, minutes: 0, seconds: 0 });
     }
   };
+  const handleModal = async () => {
+    const swipesArray = await AsyncStorage.getItem("swipes");
+    const swipesArr = JSON.parse(swipesArray);
+    const signInTime =
+      swipesArr[allSwipes.map((e) => e.date).indexOf(new Date().toDateString())]
+        ?.signIn;
+    const signOutTime = new Date().getTime();
 
-  const handleModal = () => {
+    const durationMilliseconds = signOutTime - signInTime;
+    const totalSeconds = Math.floor(durationMilliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    console.log(
+      durationMilliseconds,
+      hours,
+      "durationMilliseconds hpurssssssdsfhjk"
+    );
     if (loggedIn) {
-      setModalVisible(true);
+      if (durationMilliseconds >= 28800000) {
+        handleLogout();
+      } else {
+        setModalVisible(true);
+      }
+      //setModalVisible(true);
     } else if (!loggedIn) {
       setSignInModalVisible(true);
     }
   };
   const closeModal = () => {
-    // setModalVisible(false);
-
     handleLogin();
   };
 
@@ -249,23 +307,14 @@ export default function HomePage({ route }) {
     .map((word) => word.charAt(0))
     .join("")
     .toUpperCase();
-  const now = new Date().getTime();
   const firstName = name.split(" ")[0];
-  const toggleAccordion = () => {
-    setOpen(!open);
-    heightValue.value = open ? withTiming(0) : withTiming(400);
-  };
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    height: heightValue.value,
-  }));
 
   return (
     <SafeAreaView>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, marginBottom: 10 }}>
           <View style={styles.card}>
-            <View style={styles.dateContainer}>
+            {/* <View style={styles.dateContainer}>
               <Image source={image} style={styles.image} resizeMode="contain" />
               <View style={styles.avatar}>
                 <Text
@@ -278,7 +327,7 @@ export default function HomePage({ route }) {
                   {initials}
                 </Text>
               </View>
-            </View>
+            </View> */}
             <Text style={styles.message}>Hello {firstName} 👋</Text>
 
             <Image
@@ -292,20 +341,29 @@ export default function HomePage({ route }) {
                 colors={["#e7d2dd", "#fbfbfb"]}
               >
                 <View style={styles.contentContainer}>
-                  <View style={styles.circle}>
-                    <Text style={styles.time}>{time}</Text>
+                  <View
+                    style={{
+                      //marginTop: 10,
+                      marginHorizontal: 5,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <View style={styles.circle}>
+                      <Text style={styles.time}>{time}</Text>
+                    </View>
                   </View>
+
                   <View style={styles.headerContainer}>
                     <Text style={styles.shiftDetails}>
                       {formattedDay} | 13:00 To 22:00 Shift 4
                     </Text>
                     <Text style={styles.date}>{formattedDate}</Text>
 
-                    {allSwipes?.length > 0 && (
-                      <Pressable onPress={() => setSwipeModalVisible(true)}>
-                        <Text style={{ color: "blue" }}>View Swipes</Text>
-                      </Pressable>
-                    )}
+                    <Pressable onPress={() => setSwipeModalVisible(true)}>
+                      <Text style={{ color: "#2779FA" }}>View Swipes</Text>
+                    </Pressable>
                   </View>
                 </View>
 
@@ -333,8 +391,14 @@ export default function HomePage({ route }) {
               >
                 {loggedIn ? (
                   <Text style={styles.date}>
-                    Sign-In Time:{" "}
-                    {new Date(allSwipes[0]?.signIn).toLocaleTimeString([], {
+                    Log In Time:{" "}
+                    {new Date(
+                      allSwipes[
+                        allSwipes
+                          .map((e) => e.date)
+                          .indexOf(new Date().toDateString())
+                      ]?.signIn
+                    ).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                       hour12: true,
@@ -343,8 +407,6 @@ export default function HomePage({ route }) {
                 ) : (
                   <Text style={styles.date}> </Text>
                 )}
-
-                {/* {loggedIn && ( */}
                 <Pressable onPress={handleModal} style={styles.badge}>
                   <Text
                     style={{
@@ -354,28 +416,12 @@ export default function HomePage({ route }) {
                       color: "white",
                       flexDirection: "row",
                       justifyContent: "flex-end",
+                      width: 80,
                     }}
                   >
-                    {loggedIn ? "Sign Out" : "Sign In"}
+                    {loggedIn ? "Log-Out" : "Log-In"}
                   </Text>
                 </Pressable>
-                {/* )} */}
-                {/* {!loggedIn && (
-                  <Pressable onPress={openModal} style={styles.badge}>
-                    <Text
-                      style={{
-                        fontSize: 18,
-                        fontWeight: "500",
-                        textAlign: "center",
-                        color: "white",
-                        flexDirection: "row",
-                        justifyContent: "flex-end",
-                      }}
-                    >
-                      Sign In
-                    </Text>
-                  </Pressable>
-                )} */}
               </View>
             </View>
             <Modal
@@ -389,7 +435,7 @@ export default function HomePage({ route }) {
                   {loggedIn && (
                     <View>
                       <Text style={styles.messageText}>
-                        Are you sure? Your working hour is remaining .
+                        Are you sure? Your working hour is not completed.
                       </Text>
                       <View
                         style={{
@@ -452,84 +498,47 @@ export default function HomePage({ route }) {
                 <View style={styles.modalView}>
                   <View style={styles.swipeHeaderContainer}>
                     <Text style={styles.swipeHeaderText}>Today's Swipes</Text>
-                    <Pressable onPress={closeSwipeModal}>
+                    <Pressable
+                      onPress={closeSwipeModal}
+                      style={{
+                        borderRadius: 10,
+                        backgroundColor: "#fff",
+                        borderCurve: 5,
+                        padding: 5,
+                      }}
+                    >
                       <MaterialIcons name="close" color="#000" size={25} />
                     </Pressable>
                   </View>
                   <ScrollView>
                     {allSwipes &&
                       allSwipes?.length > 0 &&
-                      allSwipes?.map((item, index) => (
-                        <View key={index}>
-                          {item.signIn && (
-                            <Text style={styles.swipeContentText}>
-                              Sign-In{" "}
-                              {new Date(item.signIn).toLocaleTimeString()}
-                            </Text>
-                          )}
+                      allSwipes?.map((item, index) => {
+                        if (item.date === new Date().toDateString()) {
+                          return (
+                            <View key={index}>
+                              {item?.signIn && (
+                                <Text style={styles.swipeContentText}>
+                                  Sign-In{" "}
+                                  {new Date(item.signIn).toLocaleTimeString()}
+                                </Text>
+                              )}
 
-                          {item.signOut && (
-                            <Text style={styles.swipeContentText}>
-                              Sign-Out{" "}
-                              {new Date(item.signOut).toLocaleTimeString()}
-                            </Text>
-                          )}
-
-                          {/* <Text style={styles.swipeContentText}>
-                            Sign-In {new Date(item).toLocaleTimeString()}
-                          </Text>
-                          {index < logoutTime.length && (
-                            <Text style={styles.swipeContentText}>
-                              Sign-Out{" "}
-                              {new Date(logoutTime[index]).toLocaleTimeString()}
-                            </Text>
-                          )} */}
-                        </View>
-                      ))}
+                              {item?.signOut && (
+                                <Text style={styles.swipeContentText}>
+                                  Sign-Out{" "}
+                                  {new Date(item.signOut).toLocaleTimeString()}
+                                </Text>
+                              )}
+                            </View>
+                          );
+                        }
+                      })}
                   </ScrollView>
                 </View>
               </View>
             </Modal>
-            <View style={styles.accordionContainer}>
-              <Pressable
-                onPress={toggleAccordion}
-                style={styles.titleContainer}
-              >
-                <Text style={styles.textTitle}> Attendance Info</Text>
-                <Chevron progress={progress} />
-              </Pressable>
-
-              {open && (
-                <Animated.View style={[styles.content, animatedStyle]}>
-                  <Calendar markedDates={markedDates} />
-                  {/* <ABCD /> */}
-                  <View style={{ flexDirection: "row", marginTop: 10 }}>
-                    <View
-                      style={[styles.circleStyle, { backgroundColor: "green" }]}
-                    />
-                    <Text style={styles.attendenceText}>Present</Text>
-                    <View
-                      style={[styles.circleStyle, { backgroundColor: "red" }]}
-                    />
-                    <Text style={styles.attendenceText}>Absent</Text>
-                    <View
-                      style={[
-                        styles.circleStyle,
-                        { backgroundColor: "yellow" },
-                      ]}
-                    />
-                    <Text style={styles.attendenceText}>Half Day</Text>
-                    <View
-                      style={[
-                        styles.circleStyle,
-                        { backgroundColor: "skyblue" },
-                      ]}
-                    />
-                    <Text style={styles.attendenceText}>Holiday</Text>
-                  </View>
-                </Animated.View>
-              )}
-            </View>
+            <Calenders markedDates={markedDates} />
           </View>
         </View>
       </ScrollView>
@@ -539,7 +548,7 @@ export default function HomePage({ route }) {
 
 const styles = StyleSheet.create({
   card: {
-    padding: 15,
+    padding: 10,
     ...Platform.select({
       ios: {
         shadowOffset: { width: 2, height: 2 },
@@ -563,31 +572,29 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "flex-end",
     borderRadius: 10,
-    padding: 15,
+    padding: 20,
     paddingHorizontal: 10,
   },
   cardContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: "#EBE1F0",
     borderRadius: 8,
-    padding: 12,
+    padding: 10,
   },
   contentContainer: {
     flexDirection: "row",
-    margin: 5,
+    padding: 5,
   },
   circle: {
-    width: "25%",
-    aspectRatio: 1,
-    //borderRadius: "50%",
+    width: 80,
+    height: 80,
+    position: "fixed",
     borderRadius: 75,
     backgroundColor: "#fce5c0",
     justifyContent: "center",
     alignItems: "center",
-    position: "relative",
-    marginRight: 7,
   },
   time: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "bold",
     color: "black",
   },
@@ -641,12 +648,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   badge: {
-    padding: 8,
+    padding: 10,
     marginTop: 2,
     backgroundColor: "#59a94e",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 20,
+    borderRadius: 35,
+    borderCurve: "10",
   },
   modalContent: {
     flex: 2,
@@ -671,24 +679,32 @@ const styles = StyleSheet.create({
     flex: 2,
     padding: 20,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    //backgroundColor: "#469486",
   },
   swipeHeaderText: {
     fontSize: 22,
-    textAlign: "center",
+    backgroundColor: "#469486",
+    display: "flex",
+    margin: "10",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,
-    color: "#000",
+
     fontWeight: "500",
+    color: "#fff",
   },
   swipeHeaderContainer: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    backgroundColor: "#E5FBF3",
+    alignContent: "center",
+    // backgroundColor: "#E4E4E4",
     borderBottomColor: "#000",
+    backgroundColor: "#469486",
+
     borderRadius: 10,
-    padding: 8,
+    padding: 5,
+    marginBottom: 5,
   },
   swipeContentText: {
     fontSize: 18,
@@ -738,9 +754,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   accordionContainer: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#fff",
     marginTop: 10,
-    //minHeight: "auto",
+
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "#000",
@@ -759,7 +775,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 10,
-    margin: 15,
+    marginBottom: 15,
     //backgroundColor: "#D6E1F0",
   },
   circleStyle: {
@@ -769,90 +785,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  attendenceText: {
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 5,
-  },
 });
-{
-  /* <Calenders
-            title={"Attedence Info"}
-            loginTimes={loginTime}
-            logoutTimes={logoutTime}
-            markedEvents={markEventInCalendar}
-          /> */
-}
-// useEffect(() => {
-//   const checkSignInStatus = async () => {
-//       try {
-//           // Check if the user is signed in based on the stored value
-//           const storedSignedIn = await AsyncStorage.getItem('signedIn');
-//           if (storedSignedIn === 'true') {
-//               setSignedIn(true);
-//               const loginTime = await AsyncStorage.getItem('loginTime');
-//               console.warn('User is signed in. Login time:', loginTime);
-//               setFirstSignInTime(loginTime);
-//               setHasRecordedFirstSignIn(true);
-//               //   await AsyncStorage.removeItem('tableData', tableData)
-//               const storedTableData = await AsyncStorage.getItem('tableData');
-//               if (storedTableData) {
-//                   const parsedTableData = JSON.parse(storedTableData);
-//                   console.warn('parsedTableData::', parsedTableData)
-//                   setTableData(parsedTableData);
-//               }
-//           } else {
-//               setSignedIn(false);
-//               console.warn('User is signed out.');
-//           }
-//       } catch (error) {
-//           console.error('Error checking sign-in status:', error);
-//       }
-//   };
-//   checkSignInStatus();
-// }, [signIn, signOut]);
-
-// =========================
-// const signIn = async () => {
-//   const currentTime = new Date().toLocaleTimeString();
-//   const currentDate = new Date().toLocaleDateString();
-//   console.log('currentDate:', currentDate);
-//   const storedDate = await AsyncStorage.getItem('storedDate');
-//   console.log('storedDate:', storedDate);
-//   if (storedDate !== currentDate) {
-//       setHasRecordedFirstSignIn(false);
-//       await AsyncStorage.setItem('storedDate', currentDate);
-//   }
-
-//   setSignedIn(true);
-//   if (!hasRecordedFirstSignIn) {
-//       const loginTime = new Date().toLocaleTimeString();
-//       setFirstSignInTime(loginTime);
-//       // async loginTime
-//       await AsyncStorage.setItem('loginTime', loginTime);
-//       await AsyncStorage.setItem('hasRecordedFirstSignIn', 'true')
-//       setHasRecordedFirstSignIn(true);
-//       const newData = {
-//           loginTime: loginTime,
-//       };
-//       setTableData(prevData => [...prevData, newData]);
-//       await AsyncStorage.setItem('tableData', JSON.stringify(tableData));
-//       console.log("TableData1:", newData)
-//   }
-//   else {
-//       const newData = {
-//           loginTime: currentTime,
-//       };
-//       setTableData(prevData => [...prevData, newData]);
-//       await AsyncStorage.setItem('tableData', JSON.stringify([...tableData, newData]));
-//       // console.log("RAMMMMM:",([...tableData, newData]) )
-//   }
-
-//   if (!hasSignedInToday) {
-//       setHasSignedInToday(true);
-//   }
-
-//   await AsyncStorage.removeItem('signedIn')
-//   await AsyncStorage.setItem('signedIn', 'true');
-//   // await AsyncStorage.setItem('tableData', JSON.stringify(tableData));
-// }

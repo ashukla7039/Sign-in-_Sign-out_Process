@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,8 +8,11 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
+  ImageBackground,
 } from "react-native";
 import { Snackbar } from "react-native-paper";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ onLogin }) => {
   const image = require("../assets/ait.png");
@@ -18,7 +21,12 @@ const LoginScreen = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
+  const loginBg = require("../assets/loginBlueBg.jpg");
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
   const navigate = useNavigation();
   const validateForm = () => {
     let errors = {};
@@ -31,7 +39,49 @@ const LoginScreen = ({ onLogin }) => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = () => {
+  // useEffect(() => {
+  //   async function checkLogin() {
+  //     try {
+  //       const isLoggedIn = await AsyncStorage.getItem("isLoggedIn");
+  //       const username = await AsyncStorage.getItem("username");
+
+  //       if (isLoggedIn === "true") {
+  //         navigate.navigate("Mydrawer", { name: username });
+  //       } else {
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+
+  //   checkLogin();
+  // }, []);
+
+  // useEffect(() => {
+  //   async function checkLogin() {
+  //     try {
+  //       const isLoggedIn = await SecureStore.getItemAsync('isLoggedIn');
+  //       const username = await SecureStore.getItemAsync('username');
+
+  //       if (isLoggedIn === 'true') {
+  //         navigate.navigate("Mydrawer", { name: username });
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+
+  //   checkLogin();
+  // }, []);
+
+  const handleSubmit = async () => {
+    try {
+      await AsyncStorage.setItem("isLoggedIn", "true");
+      await AsyncStorage.setItem("username", username);
+      await AsyncStorage.setItem("password", password);
+    } catch {
+      console.log("Error saving data");
+    }
     if (validateForm()) {
       const nameParts = username.split(" ");
       const initials =
@@ -53,7 +103,8 @@ const LoginScreen = ({ onLogin }) => {
     navigate.navigate("SignupForm");
   };
   return (
-    <View
+    <ImageBackground
+      source={loginBg}
       style={{
         flex: 1,
         display: "flex",
@@ -67,32 +118,78 @@ const LoginScreen = ({ onLogin }) => {
           {errors.username ? (
             <Text style={styles.error}>{errors.username}</Text>
           ) : null}
-          <TextInput
-            style={styles.input}
-            placeholder="Username"
-            placeholderTextColor="#7D7B7E"
-            value={username}
-            onChangeText={(text) => {
-              setUsername(text);
-              setErrors({ ...errors, username: "" });
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#f3f3f3",
+              borderRadius: 25,
+              borderColor: "#000",
+              borderWidth: 1,
+              paddingHorizontal: 14,
+              marginBottom: 15,
             }}
-          />
+          >
+            <TextInput
+              style={{
+                flex: 1,
+                color: "#333",
 
+                padding: 10,
+                fontWeight: "bold",
+                fontSize: 18,
+              }}
+              placeholder="Enter Username"
+              placeholderTextColor="#aaa"
+              value={username}
+              onChangeText={(text) => {
+                setUsername(text);
+                setErrors({ ...errors, username: "" });
+              }}
+            />
+          </View>
           {errors.password ? (
             <Text style={styles.error}>{errors.password}</Text>
           ) : null}
-          <TextInput
-            style={styles.input}
-            secureTextEntry
-            value={password}
-            placeholder="Password"
-            placeholderTextColor="#7D7B7E"
-            onChangeText={(text) => {
-              setPassword(text);
-              setErrors({ ...errors, password: "" });
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#f3f3f3",
+              borderRadius: 25,
+              borderColor: "#000",
+              borderWidth: 1,
+              paddingHorizontal: 14,
+              marginBottom: 15,
             }}
-          />
-
+          >
+            <TextInput
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setErrors({ ...errors, password: "" });
+              }}
+              style={{
+                flex: 1,
+                color: "#333",
+                fontWeight: "bold",
+                padding: 10,
+                fontSize: 18,
+              }}
+              placeholder="Enter Password"
+              placeholderTextColor="#aaa"
+            />
+            <MaterialCommunityIcons
+              name={showPassword ? "eye-off" : "eye"}
+              size={24}
+              color="#aaa"
+              style={styles.icon}
+              onPress={toggleShowPassword}
+            />
+          </View>
           <View
             style={{
               display: "flex",
@@ -125,7 +222,7 @@ const LoginScreen = ({ onLogin }) => {
           >
             <Text>Already have account ? </Text>
             <TouchableOpacity onPress={handleSignUp}>
-              <Text style={{ color: "#064EF8" }}> Sign-up</Text>
+              <Text style={{ color: "#469486" }}> Sign-up</Text>
             </TouchableOpacity>
           </View>
           <Snackbar
@@ -138,7 +235,7 @@ const LoginScreen = ({ onLogin }) => {
           </Snackbar>
         </View>
       </SafeAreaView>
-    </View>
+    </ImageBackground>
   );
 };
 const styles = StyleSheet.create({
@@ -155,9 +252,9 @@ const styles = StyleSheet.create({
     color: "#fb5b5a",
   },
   form: {
-    backgroundColor: "#d1d5db",
+    backgroundColor: "#EAECEE",
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 20,
     borderColor: "#282a36",
     shadowOffset: {
       width: 0,
@@ -208,7 +305,8 @@ const styles = StyleSheet.create({
   },
   loginBtn: {
     width: "80%",
-    backgroundColor: "#3f51b5",
+    //backgroundColor: "#3f51b5",
+    backgroundColor: "#1378F1",
     borderRadius: 25,
     height: 50,
     alignItems: "center",
